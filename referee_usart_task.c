@@ -19,44 +19,44 @@
 //#define PUSH_DELAY 100
 //#define Robot_ID_Current Robot_ID_Blue_Infantry3
 /* Private variables ---------------------------------------------------------*/
-/* è£åˆ¤ç³»ç»Ÿä¸²å£åŒç¼“å†²åŒº */
+/* ²ÃÅĞÏµÍ³´®¿ÚË«»º³åÇø */
 uint8_t Referee_Buffer[2][REFEREE_USART_RX_BUF_LENGHT];
 
 extern DMA_HandleTypeDef hdma_usart6_rx;
 extern DMA_HandleTypeDef hdma_usart6_tx;
 
-/* è£åˆ¤ç³»ç»Ÿæ¥æ”¶æ•°æ®é˜Ÿåˆ— */
+/* ²ÃÅĞÏµÍ³½ÓÊÕÊı¾İ¶ÓÁĞ */
 fifo_s_t Referee_FIFO;
 uint8_t Referee_FIFO_Buffer[REFEREE_FIFO_BUF_LENGTH];
 
-/* protocolè§£æåŒ…ç»“æ„ä½“ */
+/* protocol½âÎö°ü½á¹¹Ìå */
 unpack_data_t Referee_Unpack_OBJ;
 
 
-/* åŠ¨æ€UIæ•°æ®å˜é‡ */
+/* ¶¯Ì¬UIÊı¾İ±äÁ¿ */
 uint8_t Robot_ID_Current;
 UI_String_t UI_String1;
-float   UI_Gimbal_Pitch = 0.0f; //äº‘å°Pitchè½´è§’åº¦
-float   UI_Gimbal_Roll = 0.0f; //äº‘å°Pitchè½´è§’åº¦
-float   UI_Chassis_Follow_Gimbal_Angle=0.0f;//åº•ç›˜è·Ÿéšäº‘å°è§’åº¦
-uint8_t UI_Chassis_Fall = 0; //åº•ç›˜å€’ä¸‹
+float   UI_Gimbal_Pitch = 0.0f; //ÔÆÌ¨PitchÖá½Ç¶È
+float   UI_Gimbal_Roll = 0.0f; //ÔÆÌ¨PitchÖá½Ç¶È
+float   UI_Chassis_Follow_Gimbal_Angle=0.0f;//µ×ÅÌ¸úËæÔÆÌ¨½Ç¶È
+uint8_t UI_Chassis_Fall = 0; //µ×ÅÌµ¹ÏÂ
 
-uint8_t UI_Capacitance  = 10;   //ç”µå®¹å‰©ä½™å®¹é‡
-uint8_t UI_fric_is_on   = 0;    //æ‘©æ“¦è½®æ˜¯å¦å¼€å¯
+uint8_t UI_Capacitance  = 10;   //µçÈİÊ£ÓàÈİÁ¿
+uint8_t UI_fric_is_on   = 0;    //Ä¦²ÁÂÖÊÇ·ñ¿ªÆô
 
-/* åŠ¨æ€UIæ§åˆ¶å˜é‡ */
+/* ¶¯Ì¬UI¿ØÖÆ±äÁ¿ */
 uint16_t UI_Push_Cnt = 0;
 uint8_t UI_Flash_Flag = 1;
 
-/* ä¸­å¤®æ ‡å°ºé«˜åº¦å˜é‡ */
+/* ÖĞÑë±ê³ß¸ß¶È±äÁ¿ */
 uint16_t y01 = 455;
 uint16_t y02 = 420;
 uint16_t y03 = 280;
 uint16_t y04 = 230;
-/*å°å¦å…‹ä½ç½®è¡¥å¿*/
+/*Ğ¡Ì¹¿ËÎ»ÖÃ²¹³¥*/
 uint16_t tank_x =600;
 uint16_t tank_y =200;
-/*è¡€æ¡ä¸­å¿ƒä½ç½®*/
+/*ÑªÌõÖĞĞÄÎ»ÖÃ*/
 uint16_t HP_x = 600;
 uint16_t HP_y = 750;
 
@@ -83,40 +83,40 @@ void referee_usart_task(void const * argument)
 {
 	float Capacitance_X;
 	
-	/* è£åˆ¤ç³»ç»Ÿåˆå§‹åŒ– */
+	/* ²ÃÅĞÏµÍ³³õÊ¼»¯ */
 	vTaskDelay(300);
 	
 	/* new UI */
 	while(1)
 	{
 		UI_Flash_Flag = chassis_ctrl.flag_flash_ui;
-//é™æ€UIé¢„ç»˜åˆ¶ ä¸­å¤®æ ‡å°º1
+//¾²Ì¬UIÔ¤»æÖÆ ÖĞÑë±ê³ß1
 		if(UI_Flash_Flag)
 		{
-			UI_Draw_Line(&UI_Graph7.Graphic[0], "001", UI_Graph_Add, 0, UI_Color_Green, 1,  840,   y01,  920,   y01); //ç¬¬ä¸€è¡Œå·¦æ¨ªçº¿
-			UI_Draw_Line(&UI_Graph7.Graphic[1], "002", UI_Graph_Add, 0, UI_Color_Green, 1,  950,   y01,  970,   y01); //ç¬¬ä¸€è¡Œåå­—æ¨ª
-			UI_Draw_Line(&UI_Graph7.Graphic[2], "003", UI_Graph_Add, 0, UI_Color_Green, 1, 1000,   y01, 1080,   y01); //ç¬¬ä¸€è¡Œå³æ¨ªçº¿
-			UI_Draw_Line(&UI_Graph7.Graphic[3], "004", UI_Graph_Add, 0, UI_Color_Green, 1,  960,y01-10,  960,y01+10); //ç¬¬ä¸€è¡Œåå­—ç«–
-			UI_Draw_Line(&UI_Graph7.Graphic[4], "005", UI_Graph_Add, 0, UI_Color_Green, 1,  870,   y02,  930,   y02); //ç¬¬äºŒè¡Œå·¦æ¨ªçº¿
-			UI_Draw_Line(&UI_Graph7.Graphic[5], "006", UI_Graph_Add, 0, UI_Color_Green, 5,  959,   y02,  960,   y02); //ç¬¬äºŒè¡Œä¸­å¿ƒç‚¹
-			UI_Draw_Line(&UI_Graph7.Graphic[6], "007", UI_Graph_Add, 0, UI_Color_Green, 1,  989,   y02,  1049,  y02); //ç¬¬äºŒè¡Œå·¦æ¨ªçº¿
+			UI_Draw_Line(&UI_Graph7.Graphic[0], "001", UI_Graph_Add, 0, UI_Color_Green, 1,  840,   y01,  920,   y01); //µÚÒ»ĞĞ×óºáÏß
+			UI_Draw_Line(&UI_Graph7.Graphic[1], "002", UI_Graph_Add, 0, UI_Color_Green, 1,  950,   y01,  970,   y01); //µÚÒ»ĞĞÊ®×Öºá
+			UI_Draw_Line(&UI_Graph7.Graphic[2], "003", UI_Graph_Add, 0, UI_Color_Green, 1, 1000,   y01, 1080,   y01); //µÚÒ»ĞĞÓÒºáÏß
+			UI_Draw_Line(&UI_Graph7.Graphic[3], "004", UI_Graph_Add, 0, UI_Color_Green, 1,  960,y01-10,  960,y01+10); //µÚÒ»ĞĞÊ®×ÖÊú
+			UI_Draw_Line(&UI_Graph7.Graphic[4], "005", UI_Graph_Add, 0, UI_Color_Green, 1,  870,   y02,  930,   y02); //µÚ¶şĞĞ×óºáÏß
+			UI_Draw_Line(&UI_Graph7.Graphic[5], "006", UI_Graph_Add, 0, UI_Color_Green, 5,  959,   y02,  960,   y02); //µÚ¶şĞĞÖĞĞÄµã
+			UI_Draw_Line(&UI_Graph7.Graphic[6], "007", UI_Graph_Add, 0, UI_Color_Green, 1,  989,   y02,  1049,  y02); //µÚ¶şĞĞ×óºáÏß
 			UI_PushUp_Graphs(7, &UI_Graph7, Robot_ID_Current);
 			vTaskDelay(PUSH_DELAY_STATIC);
 		}
-//é™æ€UIé¢„ç»˜åˆ¶ ä¸­å¤®æ ‡å°º2
+//¾²Ì¬UIÔ¤»æÖÆ ÖĞÑë±ê³ß2
 		if(UI_Flash_Flag)
 		{
-			UI_Draw_Line(&UI_Graph7.Graphic[0], "008", UI_Graph_Add, 0, UI_Color_Green, 1,  900,   y03,  940,   y03); //ç¬¬ä¸‰è¡Œå·¦æ¨ªçº¿
-			UI_Draw_Line(&UI_Graph7.Graphic[1], "009", UI_Graph_Add, 0, UI_Color_Green, 5,  959,   y03,  960,   y03); //ç¬¬ä¸‰è¡Œä¸­å¿ƒç‚¹
-			UI_Draw_Line(&UI_Graph7.Graphic[2], "010", UI_Graph_Add, 0, UI_Color_Green, 1,  980,   y03, 1020,   y03); //ç¬¬ä¸‰è¡Œå³æ¨ªçº¿
-			UI_Draw_Line(&UI_Graph7.Graphic[3], "011", UI_Graph_Add, 0, UI_Color_Green, 1,  930,   y04,  950,   y04); //ç¬¬å››è¡Œå·¦æ¨ªçº¿
-			UI_Draw_Line(&UI_Graph7.Graphic[4], "012", UI_Graph_Add, 0, UI_Color_Green, 5,  959,   y04,  960,   y04); //ç¬¬å››è¡Œä¸­å¿ƒç‚¹
-			UI_Draw_Line(&UI_Graph7.Graphic[5], "013", UI_Graph_Add, 0, UI_Color_Green, 1,  970,   y04,  990,   y04); //ç¬¬å››è¡Œå³æ¨ªçº¿
-			UI_Draw_Line(&UI_Graph7.Graphic[6], "014", UI_Graph_Add, 0, UI_Color_Green, 1,  960,y04-10,  960,y04-30); //ç¬¬å››è¡Œä¸‹ç«–çº¿
+			UI_Draw_Line(&UI_Graph7.Graphic[0], "008", UI_Graph_Add, 0, UI_Color_Green, 1,  900,   y03,  940,   y03); //µÚÈıĞĞ×óºáÏß
+			UI_Draw_Line(&UI_Graph7.Graphic[1], "009", UI_Graph_Add, 0, UI_Color_Green, 5,  959,   y03,  960,   y03); //µÚÈıĞĞÖĞĞÄµã
+			UI_Draw_Line(&UI_Graph7.Graphic[2], "010", UI_Graph_Add, 0, UI_Color_Green, 1,  980,   y03, 1020,   y03); //µÚÈıĞĞÓÒºáÏß
+			UI_Draw_Line(&UI_Graph7.Graphic[3], "011", UI_Graph_Add, 0, UI_Color_Green, 1,  930,   y04,  950,   y04); //µÚËÄĞĞ×óºáÏß
+			UI_Draw_Line(&UI_Graph7.Graphic[4], "012", UI_Graph_Add, 0, UI_Color_Green, 5,  959,   y04,  960,   y04); //µÚËÄĞĞÖĞĞÄµã
+			UI_Draw_Line(&UI_Graph7.Graphic[5], "013", UI_Graph_Add, 0, UI_Color_Green, 1,  970,   y04,  990,   y04); //µÚËÄĞĞÓÒºáÏß
+			UI_Draw_Line(&UI_Graph7.Graphic[6], "014", UI_Graph_Add, 0, UI_Color_Green, 1,  960,y04-10,  960,y04-30); //µÚËÄĞĞÏÂÊúÏß
 			UI_PushUp_Graphs(7, &UI_Graph7, Robot_ID_Current);
 			vTaskDelay(PUSH_DELAY_STATIC);
 		}
-//é™æ€UIé¢„ç»˜åˆ¶ è½¦ä½“å®½åº¦çº¿
+//¾²Ì¬UIÔ¤»æÖÆ ³µÌå¿í¶ÈÏß
 		if(UI_Flash_Flag)
 		{
 			UI_Draw_Line(&UI_Graph7.Graphic[0], "101", UI_Graph_Add, 1, UI_Color_Yellow, 2,  735,  180,  615,  0);
@@ -127,10 +127,10 @@ void referee_usart_task(void const * argument)
 			vTaskDelay(PUSH_DELAY_STATIC);
 		}
 		
-//åŠ¨æ€UIé¢„ç»˜åˆ¶ åº•ç›˜æ–¹å‘æ˜¾ç¤º
+//¶¯Ì¬UIÔ¤»æÖÆ µ×ÅÌ·½ÏòÏÔÊ¾
 		if(UI_Flash_Flag)
 		{
-			UI_Draw_Circle (&UI_Graph7.Graphic[0], "204", UI_Graph_Add, 2, UI_Color_Yellow, 3,960,100,30);   //åº•ç›˜åœ†
+			UI_Draw_Circle (&UI_Graph7.Graphic[0], "204", UI_Graph_Add, 2, UI_Color_Yellow, 3,960,100,30);   //µ×ÅÌÔ²
 			UI_Draw_Line   (&UI_Graph7.Graphic[1], "205", UI_Graph_Add, 2, UI_Color_Orange, 5	, 960-70*arm_cos_f32(UI_Chassis_Follow_Gimbal_Angle)
 																																												, 100+70*arm_sin_f32(UI_Chassis_Follow_Gimbal_Angle)
 																																												, 960+70*arm_cos_f32(UI_Chassis_Follow_Gimbal_Angle)
@@ -138,11 +138,11 @@ void referee_usart_task(void const * argument)
 			UI_PushUp_Graphs(7, &UI_Graph7, Robot_ID_Current);                                                                                                                                                                                                                                                                            
 			vTaskDelay(PUSH_DELAY_STATIC);
 		}  
-//åŠ¨æ€UIé¢„ç»˜åˆ¶ å›¾å½¢
+//¶¯Ì¬UIÔ¤»æÖÆ Í¼ĞÎ
 		if(UI_Flash_Flag)
 		{
-			UI_Draw_Float (&UI_Graph7.Graphic[0], "201", UI_Graph_Add, 2, UI_Color_Yellow, 22, 3, 3, 1355, 632, 0.000f);   //Pithè½´è§’åº¦
-			UI_Draw_Line  (&UI_Graph7.Graphic[1], "202", UI_Graph_Add, 2, UI_Color_Orange, 20, 960-200, 200, 960+200, 200);      //ç”µå®¹å®¹é‡
+			UI_Draw_Float (&UI_Graph7.Graphic[0], "201", UI_Graph_Add, 2, UI_Color_Yellow, 22, 3, 3, 1355, 632, 0.000f);   //PithÖá½Ç¶È
+			UI_Draw_Line  (&UI_Graph7.Graphic[1], "202", UI_Graph_Add, 2, UI_Color_Orange, 20, 960-200, 200, 960+200, 200);      //µçÈİÈİÁ¿
 			UI_Draw_Int   (&UI_Graph7.Graphic[2], "211", UI_Graph_Add, 2, UI_Color_Green , 22, 3, 1160,200,100);
 			UI_Draw_Line  (&UI_Graph7.Graphic[3], "212", UI_Graph_Add, 2, UI_Color_Green , 2 , 960-300, 600, 960+300, 600);
 			UI_Draw_Float (&UI_Graph7.Graphic[5], "214", UI_Graph_Add, 2, UI_Color_White , 20, 0, 4, HP_x+15, HP_y, 0);
@@ -150,14 +150,14 @@ void referee_usart_task(void const * argument)
 			UI_PushUp_Graphs(7, &UI_Graph7, Robot_ID_Current);
 			vTaskDelay(PUSH_DELAY_STATIC);
 		}
-//åŠ¨æ€UIé¢„ç»˜åˆ¶ å­—ç¬¦ä¸²1
+//¶¯Ì¬UIÔ¤»æÖÆ ×Ö·û´®1
 		if(UI_Flash_Flag)
 		{
-			UI_Draw_String(&UI_String.String,"203", UI_Graph_Add, 2, UI_Color_Black,  22, 8, 3,  400, 632, "Fric OFF"); //æ‘©æ“¦è½®æ˜¯å¦å¼€å¯
+			UI_Draw_String(&UI_String.String,"203", UI_Graph_Add, 2, UI_Color_Black,  22, 8, 3,  400, 632, "Fric OFF"); //Ä¦²ÁÂÖÊÇ·ñ¿ªÆô
 			UI_PushUp_String(&UI_String, Robot_ID_Current);
 			vTaskDelay(PUSH_DELAY_STATIC);
 		}		
-//åŠ¨æ€UIé¢„ç»˜åˆ¶ å­—ç¬¦ä¸²-åº•ç›˜å€’åœ°
+//¶¯Ì¬UIÔ¤»æÖÆ ×Ö·û´®-µ×ÅÌµ¹µØ
 		if(UI_Flash_Flag)
 		{
 			if(UI_Chassis_Fall)UI_Draw_String(&UI_String1.String, "300", UI_Graph_Add, 3, UI_Color_Yellow,  22, 5, 3,  500, 700, "FALL\n"); 
@@ -167,10 +167,10 @@ void referee_usart_task(void const * argument)
 		}
 
 ////////////////////////////////////////////////////////////////////////////////////
-//åŠ¨æ€UIæ›´æ–° åº•ç›˜æ–¹å‘æ˜¾ç¤º         
+//¶¯Ì¬UI¸üĞÂ µ×ÅÌ·½ÏòÏÔÊ¾         
 		if(!UI_Flash_Flag)
 		{
-			UI_Draw_Circle (&UI_Graph7.Graphic[0], "204", UI_Graph_Change, 2, UI_Color_Yellow, 3,960,100,25);   //åº•ç›˜åœ†
+			UI_Draw_Circle (&UI_Graph7.Graphic[0], "204", UI_Graph_Change, 2, UI_Color_Yellow, 3,960,100,25);   //µ×ÅÌÔ²
 			UI_Draw_Line   (&UI_Graph7.Graphic[1], "205", UI_Graph_Change, 2, UI_Color_Orange, 5	, 960-70*arm_cos_f32(UI_Chassis_Follow_Gimbal_Angle)
 																																												, 100+70*arm_sin_f32(UI_Chassis_Follow_Gimbal_Angle)
 																																												, 960+70*arm_cos_f32(UI_Chassis_Follow_Gimbal_Angle)
@@ -179,13 +179,13 @@ void referee_usart_task(void const * argument)
 			vTaskDelay(PUSH_DELAY_DYNAMIC);
 		}
 		
-//åŠ¨æ€UIæ›´æ–° å›¾å½¢
+//¶¯Ì¬UI¸üĞÂ Í¼ĞÎ
 		if(!UI_Flash_Flag && UI_Push_Cnt % 3 == 0)
 		{
-			/* Pitchè½´å½“å‰è§’åº¦ */
+			/* PitchÖáµ±Ç°½Ç¶È */
 			UI_Draw_Float(&UI_Graph7.Graphic[0], "201", UI_Graph_Change, 2, UI_Color_Yellow, 22, 3, 3, 1355, 632, UI_Gimbal_Pitch);
 			
-			/* è¶…çº§ç”µå®¹å®¹é‡ */
+			/* ³¬¼¶µçÈİÈİÁ¿ */
 			UI_Capacitance = Max(UI_Capacitance, 5);
 			Capacitance_X  = 760.0f + 4.0f * UI_Capacitance;
 			if(50 < UI_Capacitance && UI_Capacitance <= 100) 
@@ -209,7 +209,7 @@ void referee_usart_task(void const * argument)
 //				UI_Draw_Line   (&UI_Graph7.Graphic[4], "213", UI_Graph_Change, 2, UI_Color_White , 20,1400,200,1420,200);
 			UI_Draw_Line  (&UI_Graph7.Graphic[3], "212", UI_Graph_Change, 2, UI_Color_Green , 1 , 960-300.0f*arm_cos_f32(UI_Gimbal_Roll/180.0f*3.14159f) , 600-300*arm_sin_f32(UI_Gimbal_Roll/180.0f*3.14159f), 960+300*arm_cos_f32(UI_Gimbal_Roll/180.0f*3.14159f), 600+300*arm_sin_f32(UI_Gimbal_Roll/180.0f*3.14159f));
       
-			if(Robot_ID_Current>=100)//æˆ‘æ–¹ä¸ºè“æ–¹
+			if(Robot_ID_Current>=100)//ÎÒ·½ÎªÀ¶·½
 			{
 				switch(AutoAim_Data_Receive.Aimed_ID%9)
 				{ 
@@ -300,7 +300,7 @@ void referee_usart_task(void const * argument)
 			vTaskDelay(PUSH_DELAY_DYNAMIC);
 		}
 		
-//åŠ¨æ€UIæ›´æ–° å­—ç¬¦ä¸²1
+//¶¯Ì¬UI¸üĞÂ ×Ö·û´®1
 		if(!UI_Flash_Flag && UI_Push_Cnt % 3 == 1)
 		{
 			if(UI_fric_is_on == 1) 
@@ -327,7 +327,7 @@ void referee_usart_task(void const * argument)
 			vTaskDelay(PUSH_DELAY_DYNAMIC);
 		}
 		
-//åŠ¨æ€UIæ›´æ–° å­—ç¬¦ä¸²-åº•ç›˜å€’åœ°		
+//¶¯Ì¬UI¸üĞÂ ×Ö·û´®-µ×ÅÌµ¹µØ		
 		if(!UI_Flash_Flag && UI_Push_Cnt % 3 == 2)
 		{
 			if(UI_Chassis_Fall)UI_Draw_String(&UI_String1.String, "300", UI_Graph_Change, 3, UI_Color_Yellow,  22, 5, 3,  500, 700, "FALL\n"); 
